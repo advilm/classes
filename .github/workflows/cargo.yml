@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+
+defaults:
+  run:
+    working-directory: backend
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          default: true
+      - name: fmt
+        uses: marcopolo/cargo@master
+        with:
+          command: fmt
+          args: -- --check
+          working-directory: backend
+
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          default: true
+      - name: check
+        uses: marcopolo/cargo@master
+        with:
+          command: check
+          working-directory: backend
+
+  build:
+    needs:
+      - format
+      - check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          default: true
+      - name: build
+        uses: marcopolo/cargo@master
+        with:
+          command: build
+          working-directory: backend
